@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Target Practice Game</title>
+
+<style>
+    * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+body {
+    margin: 0;
+    background: #222;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+/* ===== Start Screen ===== */
+#startScreen {
+    position: fixed;
+    inset: 0;
+    background: #222;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+input, button {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px;
+}
+
+/* ===== Game ===== */
+#gameContainer {
+    display: none;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+#gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><circle cx="2" cy="2" r="1" fill="white"/></svg>') 2 2, auto;
+            /* Custom 2x2 dot cursor */
+        }
+
+/* ===== UI ===== */
+#ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 18px;
+    z-index: 10;
+}
+
+/* ===== Game Over ===== */
+#gameOver {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+}
+
+/* ===== Ranking ===== */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1500;
+}
+.modal-content {
+    background: white;
+    color: black;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    margin: 10% auto;
+    border-radius: 8px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== 名前入力 ===== -->
+<div id="startScreen">
+    <h2>名前を入力してください</h2>
+    <input id="playerNameInput" placeholder="プレイヤー名">
+    <button id="startGameBtn">ゲーム開始</button>
+</div>
+
+<!-- ===== ゲーム ===== -->
+<div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui">
+        <div>Player: <span id="uiName"></span></div>
+        <div>Score: <span id="score">0</span></div>
+        <div>Hits: <span id="hits">0</span></div>
+        <div>Time: <span id="timer">20</span>s</div>
+    </div>
+
+    <div id="gameOver">
+        <h2>Game Over</h2>
+        <p>Score: <span id="finalScore"></span></p>
+        <p>Hits: <span id="finalHits"></span></p>
+        <button id="showRankingBtn">ランキング</button>
+        <button onclick="location.reload()">もう一度</button>
+    </div>
+</div>
+
+<!-- ===== Ranking ===== -->
+<div id="rankingModal" class="modal">
+    <div class="modal-content">
+        <h3>ランキング</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>順位</th>
+                    <th>名前</th>
+                    <th>スコア</th>
+                    <th>ヒット</th>
+                </tr>
+            </thead>
+            <tbody id="rankingTable"></tbody>
+        </table>
+        <button onclick="rankingModal.style.display='none'">閉じる</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/OrbitControls.js"></script>
+<script src="game.js"></script>
+
+<script>
+let playerName = "";
+let gameInstance = null;
+
+startGameBtn.onclick = () => {
+    const name = playerNameInput.value.trim();
+    if (!name) return alert("名前を入力してください");
+
+    playerName = name;
+    uiName.textContent = name;
+
+    startScreen.style.display = "none";
+    gameContainer.style.display = "block";
+
+    gameInstance.startGame();
+};
+
+showRankingBtn.onclick = () => {
+    rankingModal.style.display = "block";
+    rankingTable.innerHTML = "";
+
+    const ranking = JSON.parse(localStorage.getItem("gameRanking")) || [];
+    ranking.forEach((r,i)=>{
+        rankingTable.innerHTML += `
+        <tr>
+            <td>${i+1}</td>
+            <td>${r.name}</td>
+            <td>${r.score}</td>
+            <td>${r.hits}</td>
+        </tr>`;
+    });
+};
+
+window.addEventListener("DOMContentLoaded", ()=>{
+    gameInstance = new TargetPracticeGame();
+});
+</script>
+
+</body>
+</html>
