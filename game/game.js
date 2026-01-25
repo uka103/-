@@ -153,3 +153,29 @@ class TargetPracticeGame {
         this.renderer.render(this.scene, this.camera);
     }
 }
+
+this.endTime = performance.now() + 20000;
+
+updateTimer() {
+    if (!this.gameState.isActive) return;
+    const remaining = this.endTime - performance.now();
+    this.gameState.timeRemaining = Math.max(0, remaining / 1000);
+    timer.textContent = Math.ceil(this.gameState.timeRemaining);
+    if (remaining <= 0) this.endGame();
+}
+
+
+
+const endTime = this.gameState.startTime + 20000;
+
+updateTimer() {
+    if (!this.gameState.isActive) return;
+    const now = Date.now();
+    this.gameState.timeRemaining = Math.max(0, (endTime - now) / 1000);
+}
+
+
+
+
+this.gameState.startTime = performance.now();
+
