@@ -179,3 +179,15 @@ updateTimer() {
 
 this.gameState.startTime = performance.now();
 
+updateTimer() {
+        if (!this.gameState.isActive || !this.gameState.startTime) return;
+
+        const elapsed = (Date.now() - this.gameState.startTime) / 1000;
+        this.gameState.timeRemaining = Math.max(0, 20 - elapsed);
+
+        if (this.gameState.timeRemaining <= 0) {
+            this.endGame();
+        }
+
+        this.updateUI();
+    }
